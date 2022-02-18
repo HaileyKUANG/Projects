@@ -1,11 +1,13 @@
-Part1. About HTML and PowerPoint file
+Part1. About Rtest Package
+If you do not want to install "Rtest.zip" as a package, please run the four functions in the folder "Rtest_Functions" before running the TIMSS example in rmarkdown.
+
+Part2. About HTML and PowerPoint file
 GitHub can't show HTML and PowerPoint files that are this big right now, please see it as:
-https://htmlpreview.github.io/?
+https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main/Sample_R_Code/Self_Defined_R_Package_For_SEM_External_Specification_Brute_Force_Search/2.Output_Rtest-Package-with-TIMSS-Example.html
+https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main/Sample_R_Code/Self_Defined_R_Package_For_SEM_External_Specification_Brute_Force_Search/3.Presentation_AERA_Presentation_Brute_Force_Search.pptx
 
 
-
-Part2. About rmarkdown
-
+Part3. About rmarkdown
 If you are using RStudio, you can install the R Markdown package from CRAN as follows:
 install.packages("rmarkdown")
 
