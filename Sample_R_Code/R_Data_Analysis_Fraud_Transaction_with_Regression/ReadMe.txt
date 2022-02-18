@@ -1,6 +1,6 @@
 Part1. About HTML file
 GitHub can't show HTML files that are this big right now, please see it as:
-https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main/Sample_R_Code/R_Data_Analysis_Fraud_Transaction_with_Regression/R_Data_Analysis_Fraud_Transaction_with_Regression.html
+https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main/Sample_R_Code/R_Data_Analysis_Fraud_Transaction_with_Regression/2.Output_R_Data_Analysis_Fraud_Transaction_with_Regression.html
 
 
 Part2. About rmarkdown
