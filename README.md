@@ -1,7 +1,7 @@
 # Projects
 ## Sample_R_Code
-R_Package_For_SEM_External_Specification_Brute_Force_Search
-R_Data_Analysis_Fraud_Transaction_with_Regression
+#### R_Package_For_SEM_External_Specification_Brute_Force_Search
+#### R_Data_Analysis_Fraud_Transaction_with_Regression
 R_NLP_Sentiment Analysis of Twitter
 
 ## Sample_Python_Code
