@@ -4,7 +4,6 @@ https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main
 
 
 Part2. About rmarkdown
-
 If you are using RStudio, you can install the R Markdown package from CRAN as follows:
 install.packages("rmarkdown")
 
