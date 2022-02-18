@@ -1,0 +1,5 @@
+This file contains the instructions for running this project.
+1. "Extract_Image_features.py" used VGG16 to extract the image features. The output from this has been saved and included in this submission. You do not need to run this. If you wish to run this part, please download the Flickr 8k dataset from https://www.kaggle.com/adityajn105/flickr8k/activity. Please change the filepath in the code before you run it.
+2. "Train_LSTM.py" trained LSTM to predict image caption. You do not need to run this. The output from this has been saved and included in this submission. Namely, "model-ep005-loss2.858-val_loss3.114.h5". If you wish to run this part, please download the Flickr 8k dataset and run "5. Project3_Extract_Image_features.py" first.
+3. "Evaluation.py" showed the result of this project. Please directly run this part. It will return the predicted caption and BLEU value. The needed components have been included in this submission under the subfolder "9.result". Three sample images presented in the witten report were included as well.
+

@@ -1,0 +1,162 @@
+---
+title: "Rtest Package with TIMSS Example"
+author: "Hailey KUANG"
+date: "5/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+## Please note that:
+## This example requires to have rtools installed
+## See details at: https://cran.r-project.org/bin/windows/Rtools/rtools40.html
+
+## This example is built on a self-defined R package, called Rtest.
+## (Included in this repository as "Rtest.zip". I am still working on modifying my functions and preparing the documentation, I will share an updated version later.)
+## There are four functions in Rtest:
+## Hsimu: simulate the data based on Jen, et.al, (2013)
+## Hsens: Conduct the SEM External Specification Brute Force Search
+## Hsens_Output: Identify the paths that changed based on simulated unmeasured confounder
+## Hsearchresult: Search through the result based on a given standard
+
+```
+
+
+```{r, include=FALSE}
+###========================================================================###
+###                Part 1. Install Rtest Package                           ###
+###========================================================================###
+## To install Rtest package,
+## You need to have Rtools installed, see https://cran.r-project.org/bin/windows/Rtools/
+## With Rtools, you need to install devtools package
+if ("devtools" %in% rownames(installed.packages()) == FALSE){
+  install.packages(devtools)
+}
+```
+
+
+```{r, include=FALSE}
+if ("devtools" %in% (.packages()) == FALSE){
+  library("devtools", character.only = TRUE)
+}
+```
+
+```{r, include=FALSE}
+## With devtools, now you can install the Rtest package from the local path
+## You only need to install it once
+## ... refer to the local path to the folder with "Rtest.zip" file 
+install_local("X:/.../Rtest.zip", repos = NULL, type = "win.binary")
+```
+
+
+```{r,  include=FALSE}
+## The package (Rtest) with 4 functions
+## Hsimu: simulate the data based on Jen, et.al, (2013)
+## Hsens: Conduct the SEM External Specification Brute Force Search
+## Hsens_Output: Identify the paths that changed based on simulated unmeasured confounder
+## Hsearchresult: Search through the result based on a given standard
+library(Rtest)
+
+## Check the Rtest functions to see whether the package has been successfully installed
+## Please ignore the incomplete documentation, I will provide a detailed description later
+help("Hsens_Output")
+```
+
+
+```{r}
+###========================================================================###
+###                Part 2. TIMSS Example                                   ###
+###========================================================================###
+## Regenerate the data based on 
+## "Jen, T. H., Lee, C. D., Chien, C. L., Hsu, Y. S., & Chen, K. M. (2013). Perceived social relationships and science learning outcomes for Taiwanese eighth graders: Structural equation modeling with a complex sampling consideration. International Journal of Science and Mathematics Education, 11(3), 575-600."
+
+## Simulate Data with function 1: Hsimu
+TIMSS_TW <- Hsimu(3901)
+```
+
+```{r, include=FALSE}
+View(TIMSS_TW)
+```
+
+
+```{r}
+## This block of code does not depend on any Rtest function
+## Instead, you will need the following R packages
+
+## Load needed packages
+Packages <- c("lavaan", "semPlot")
+for (BAO in Packages) {
+  if (BAO %in% rownames(installed.packages()) == FALSE){
+    install.packages(BAO)
+  }
+  if (BAO %in% (.packages()) == FALSE){
+    library(BAO, character.only = TRUE)
+  }
+}
+
+## Build SEM model (fit/Model) to test the model convergence 
+Model <-  'PTSR =~ PTSR1 + PTSR2 + PTSR3 
+           PPR =~ PPR1 + PPR2 + PPR3
+           SCS =~ SCS1 + SCS2 + SCS3 + SCS4
+           PATS =~ PATS1 + PATS2 + PATS3
+           
+           PV1 ~ SCS + PATS
+           SCS ~ PTSR + PPR
+           PATS ~ PTSR + PPR
+
+           SCS ~~ PATS'
+
+## Fit the (fit/Model) model with lavaan package
+fit <- sem(model = Model, data = TIMSS_TW)
+
+## Plot path diagram
+semPaths(fit, title = FALSE, curvePivot = TRUE)
+
+## Check the unstandardized loadings
+summary(fit, standardized=TRUE)
+## Standardized loadings
+Stfit <- standardizedSolution(fit)
+
+## Check the fit indices
+fitMeasures(fit)
+
+```
+
+```{r}
+## This block of code depends on Rtest functions
+## It may take about 1 hour if the interval in Hsens is equal to 0.1
+## In this example, the interval is set at 0.5
+
+## Set options
+options(scipen = 100, digits = 3)
+
+## function 2: Hsens
+Test <- Hsens(TIMSS_TW, fit)
+Test <- data.frame(Test)
+names(Test)[23:27] <- paste0("simucor_", names(Test)[23:27], sep = "")
+```
+
+```{r}
+## Detect the changes
+## function 3: Hsens_Output
+Result <- Hsens_Output(Test, Stfit)
+
+## Output the path summary 
+Path_Table <- Result[[length(Result)]]
+
+## Unlist the Result
+searchlist <- c(Result[[1]][1], Result[[1]][2], Result[[1]][3], 
+                Result[[2]][1], Result[[2]][2], Result[[2]][3], 
+                Result[[3]][1], Result[[3]][2], Result[[3]][3], 
+                Result[[4]][1], Result[[4]][2], Result[[4]][3], 
+                Result[[5]][1], Result[[5]][2], Result[[5]][3], 
+                Result[[6]][1], Result[[6]][2], Result[[6]][3])
+
+```
+
+
+```{r}
+## function 4: Hsearchresult
+searchresult <- Hsearchresult(searchlist, 0.0, NULL, NULL, NULL, 0.5)
+print(searchresult[[10]])
+```
+

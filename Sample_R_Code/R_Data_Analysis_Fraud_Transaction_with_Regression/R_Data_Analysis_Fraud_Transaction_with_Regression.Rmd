@@ -1,0 +1,540 @@
+---
+title: "Data Science Challenge (finished within 180 mins)"
+author: "HK_C1879281"
+date: "3/24/2021"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+## Load needed R package
+Packages <- c("jsonlite", "tidyr", "dplyr", "ggplot2", "stargazer", "scales", "lubridate", "moments", "data.table", "utils", "caret", "ROCR")
+
+for (BAO in Packages) {
+  if (BAO %in% rownames(installed.packages()) == FALSE){
+    install.packages(BAO)
+  }
+  if (BAO %in% (.packages()) == FALSE){
+    library(BAO, character.only = TRUE)
+  }
+}
+
+```
+
+
+```{r, include=FALSE}
+## Check the current or maximum memory allocation of the malloc function used in R
+memory.size()
+memory.size(TRUE)
+memory.size(max = T)
+
+## Check the limit in force on the total allocation
+memory.limit()
+## Increase memory limit 
+#memory.limit(48961)
+
+```
+
+```{r, include=FALSE}
+## Settings (ggplot theme,  and avoid scientific notation)
+mytheme <- theme(plot.title = element_text(size = 12, 
+                                           face = "bold", 
+                                           hjust = 0.5, 
+                                           color = "black", 
+                                           margin = margin(15,0,15,0)),
+                 axis.text = element_text(size = 10, 
+                                          face = "bold"), 
+                 axis.line = element_line(colour = "black", 
+                                          size = 0.5, 
+                                          linetype = "solid"),
+                 axis.title.x = element_text(size = 12, 
+                                             face = "bold", 
+                                             margin = margin(9,0,0,0)),
+                 axis.title.y = element_text(size = 12, 
+                                             face = "bold", 
+                                             margin = margin(0,7,0,0)),
+                 strip.text.x = element_text(size = 12, face = "bold"),
+                 strip.text.y = element_text(size = 12, face = "bold"),
+                 legend.position ="top", 
+                 legend.title = element_text(size = 12, face = "bold"),
+                 legend.text = element_text(size = 12, face = "bold"),
+                 panel.background = element_rect(fill = "white", 
+                                                 colour = "black",
+                                                 size = 0.5, 
+                                                 linetype = "solid"),
+                 panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
+                 plot.margin = margin(0.25, 1.5, 0.25, 1.5, "cm")) 
+
+
+blank_theme <- theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_text(size = 14, face="bold"))
+
+options(scipen = 99999)
+
+```
+
+
+```{r, include=FALSE}
+## Self-defined function
+## Frequency Table Function
+frex <- function(x){
+  tx <- table(x)
+  s <- cbind(tx, round(prop.table(tx)*100))
+  colnames(s) <-c('count', 'percentage')
+  s
+}
+
+```
+
+
+```{r, include=FALSE}
+## Read data
+## There are 786,363 records
+## For each record, there are 29 fields
+
+## ... refer to the local path to the folder with "transactions.txt" file 
+
+#CT_data_OR <- stream_in(file("C:/Users/chena/Desktop/20210101 Maguire/transactions.txt"))
+CT_data_OR <- stream_in(file("F:/3. Application/External_Application/Intern/Data/2021 Capital One/HK_C1879281_Data Science Challenge_Card Transactions/Card Transactions/transactions.txt"))
+CT_data <- CT_data_OR
+
+```
+
+
+```{r, include=FALSE}
+##======================================================##
+## Questioon 1
+## Descriptive statistics
+## Part 1. Check the structure of each variable
+str(CT_data) 
+
+```
+
+```{r}
+## Part 2. Descriptive Statistics for Numeric Variables
+numer_var <- c("creditLimit", "availableMoney", "transactionAmount", "currentBalance")
+
+## Define the output table
+numer_desc <- data.frame(matrix(NA, ncol = 8))
+names(numer_desc) <- c("Variable","Mean", "Standard Deviation",
+                       "Median", "Minimum", "Maximum", 
+                       "Count of Null", "Percent of Null")
+i <- 1
+for (nvar in numer_var) {
+  
+  mysd <- sd(eval(parse(text = paste("CT_data","$",nvar, sep = ""))), na.rm = T)
+  mysummary <- summary(eval(parse(text = paste("CT_data","$",nvar, sep = ""))))
+  myNA <- length(which(eval(parse(text = paste("CT_data","$", nvar, sep = ""))) == "") == T)
+  numer_desc[i, 1] <- nvar
+  numer_desc[i, c(2, 4:6)] <- mysummary[c(4,3,1,6)]
+  numer_desc[i, 3] <- mysd
+  numer_desc[i, 7] <- myNA
+  numer_desc[i, 8] <- (myNA/nrow(CT_data))*100
+  i <- i+1
+  
+  ## histogram
+  myhist <- ggplot(CT_data, aes(x = eval(parse(text = paste("CT_data","$",nvar, sep = ""))))) +  
+    geom_histogram(bins = 30) + 
+    mytheme +
+    labs(y = "COUNTS", x = parse(text = nvar)) +
+    ggtitle(paste("Histogram of", nvar, "for Card Transactions! Study", sep=" "))
+  print(myhist)
+}
+
+## organize the output table
+stargazer(numer_desc, type = "text", summary = F, 
+          rownames = F, align = T, notes.align = "l",
+          title="Descriptive Statistics for Numeric Variables")
+```
+
+```{r}
+## Part 3. Descriptive Statistics for Categorical Variables
+cate_var <- c("accountNumber",  "customerId",  "transactionDateTime", 
+               "merchantName", "acqCountry", "merchantCountryCode", 
+               "posEntryMode", "posConditionCode",  "merchantCategoryCode",
+               "currentExpDate", "accountOpenDate", "dateOfLastAddressChange", 
+               "cardCVV", "enteredCVV", "cardLast4Digits",  "transactionType", 
+               "echoBuffer", "merchantCity", "merchantState", "merchantZip", 
+               "posOnPremises", "recurringAuthInd") 
+
+cate_desc <- data.frame(matrix(NA, ncol = 3))
+names(cate_desc) <- c("Variable", "Count of Unique Values", "Count of Null")
+i <- 1
+for (cvar in cate_var) {
+  cate_desc[i, 1] <- cvar
+  cate_desc[i, 2] <- length(unique(eval(parse(text = paste("CT_data","$", cvar, sep = "")))))
+  cate_desc[i, 3] <- length(which(eval(parse(text = paste("CT_data","$", cvar, sep = ""))) == "") == T)
+  #cate_desc[i, 3] <- length(which(is.na(eval(parse(text = paste("CT_data","$", cvar, sep = ""))))))
+  i <- i+1
+}
+
+stargazer(cate_desc, type = "text", summary = F, 
+          rownames = F, align = T, notes.align = "l",
+          title="Descriptive Statistics for Categorical Variables")
+
+```
+
+```{r}
+## Part 4. Frequency of Categorical Variables (Less than 20 categories)
+fcate_var <- c("acqCountry", "merchantCountryCode", "posEntryMode", 
+               "posConditionCode",  "merchantCategoryCode", "transactionType",
+               "cardPresent", "expirationDateKeyInMatch", "isFraud") 
+
+for (fcvar in fcate_var) {
+  
+  s <- frex(eval(parse(text = paste("CT_data","$", fcvar, sep = ""))))
+  stargazer(s, type = "text", summary = F, 
+            rownames = T, align = T, notes.align = "l",
+            title= paste("Frequency Table for", fcvar, sep = " "))
+  
+  print(ggplot(CT_data)+
+          geom_bar(aes(x = eval(parse(text = paste("CT_data","$", fcvar, sep = ""))))) +  
+    scale_y_continuous(labels = comma) +
+    mytheme +
+    theme(axis.text.x = element_text(angle = 90)) +
+    labs(y = "COUNTS", x = parse(text = fcvar)) +
+    ggtitle(paste(fcvar, "of Each Class", sep=" ")))
+  }
+
+
+```
+
+```{r}
+## Part 5. TimeStamp Variables
+tmcate_var <- c("transactionDateTime")
+for (tmvar in tmcate_var) {
+  mytime <- format(as.POSIXct(eval(parse(text = paste("CT_data","$", tmvar, sep = "")))), "%Y%m")
+  CT_data$transactionyearmonthday <- format(as.POSIXct(eval(parse(text = paste("CT_data","$", tmvar, sep = "")))), "%Y%m%d")
+  CT_data$transactionyearmonth <-  mytime
+  s <-  frex(mytime)
+  stargazer(s, type = "text", summary = F, 
+            rownames = T, align = T, notes.align = "l",
+            title= paste("Frequency Table for", tmvar, sep = " "))
+  
+  myfrex <- data.frame(s)
+  myfrex[ ,3] <- c(row.names(myfrex))
+  names(myfrex)[3] <- "class"
+  
+  # Add label position
+  myfrex <- myfrex %>%
+  arrange(desc(class)) %>%
+  mutate(lab.ypos = cumsum(percentage) - 0.5*percentage)
+  
+  print(ggplot(myfrex, aes(x="", y = percentage, fill = class)) + 
+    geom_bar(width = 1, stat = "identity",  color = "white") +
+    coord_polar("y", start = 0) + 
+    blank_theme +
+    theme(axis.text.x = element_blank())+
+    geom_text(aes(y = lab.ypos, 
+                label = percent(percentage/100)), color = "white", size = 3))
+  
+}
+
+CT_data$updatedcurrentExpDate <- format(mdy(CT_data$currentExpDate))
+tycate_var <- c("updatedcurrentExpDate", "accountOpenDate","dateOfLastAddressChange")
+for (tyvar in tycate_var) {
+  mytime <- format(as.POSIXct(eval(parse(text = paste("CT_data","$", tyvar, sep = "")))), "%Y")
+  s <-  frex(mytime)
+  stargazer(s, type = "text", summary = F,
+            rownames = T, align = T, notes.align = "l",
+            title= paste("Frequency Table for", tyvar, sep = " "))
+  
+  myfrex <- data.frame(s)
+  myfrex[ ,3] <- c(row.names(myfrex))
+  names(myfrex)[3] <- "class"
+  
+  # Add label position
+  myfrex <- myfrex %>%
+    arrange(desc(class)) %>%
+    mutate(lab.ypos = cumsum(percentage) - 0.5*percentage)
+  
+  print(ggplot(myfrex, aes(x="", y = percentage, fill = class)) + 
+          geom_bar(width = 1, stat = "identity",  color = "white") +
+          coord_polar("y", start = 0) + 
+          blank_theme +
+          theme(axis.text.x = element_blank())+
+          geom_text(aes(y = lab.ypos, 
+                        label = percent(percentage/100)), color = "white", size = 3))
+  
+}
+```
+
+```{r}
+##======================================================##
+## Question 2:
+## The discribution 
+## Part 1. Descriptive Statistics and Plot for transactionAmount
+numer_var <- c( "transactionAmount")
+numer_desc <- data.frame(matrix(NA, ncol = 6))
+names(numer_desc) <- c("Mean", "Standard Deviation",
+                       "Median", "Minimum", "Maximum", "Count of Null")
+i <- 1
+for (nvar in numer_var) {
+  
+  mysd <- sd(eval(parse(text = paste("CT_data","$",nvar, sep = ""))), na.rm = T)
+  mysummary <- summary(eval(parse(text = paste("CT_data","$",nvar, sep = ""))))
+  myNA <- length(which(eval(parse(text = paste("CT_data","$", nvar, sep = ""))) == "") == T)
+  #myNA <- length(which(is.na(eval(parse(text = paste("CT_data","$",nvar, sep = ""))))))
+  numer_desc[i, c(1, 3:5)] <- mysummary[c(4,3,1,6)]
+  numer_desc[i, 2] <- mysd
+  numer_desc[i, 6] <- myNA
+  i <- i+1
+  myhist <- ggplot(CT_data, aes(x = eval(parse(text = paste("CT_data","$",nvar, sep = ""))))) +  
+    geom_histogram(bins = 30) + 
+    mytheme +
+    labs(y = "COUNTS", x = parse(text = nvar)) +
+    ggtitle(paste("Histogram of", nvar, "for Card Transactions! Study", sep=" "))
+  print(myhist)
+}
+
+stargazer(numer_desc, type = "text", summary = F, 
+          rownames = F, align = T, notes.align = "l",
+          title="Descriptive Statistics for Numeric Variables")
+
+```
+
+```{r}
+## Part 2. Check skewness and kurtosis
+## The values for asymmetry and kurtosis between -2 and +2 are considered acceptable in order to prove normal univariate distribution.
+skewness(CT_data$transactionAmount)
+kurtosis(CT_data$transactionAmount)
+
+```
+
+```{r}
+## Part 3. Log Transformation (Natural Log)
+CT_data$log_transactionAmount <- log(CT_data$transactionAmount + 1)
+skewness(CT_data$log_transactionAmount)
+kurtosis(CT_data$log_transactionAmount)
+mean(CT_data$log_transactionAmount)
+sd(CT_data$log_transactionAmount)
+mean(CT_data$log_transactionAmount) - 3*sd(CT_data$log_transactionAmount)
+mean(CT_data$log_transactionAmount) + 3*sd(CT_data$log_transactionAmount)
+ggplot(CT_data, aes(x = log_transactionAmount)) +  
+    geom_histogram(bins = 30) + 
+    mytheme +
+    labs(y = "COUNTS", x = parse(text = nvar)) +
+    ggtitle(paste("Histogram of log_transactionAmount for Card Transactions! Study", sep=" "))
+```
+
+
+```{r}
+## Part 4. Explore the distribution of transactionAmount based on transactionType
+CT_data %>%
+  group_by(transactionType) %>%
+  summarize(n = n(),
+    mean = mean(transactionAmount),
+            sd = sd(transactionAmount),
+            median = fivenum(transactionAmount)[3],
+            min = fivenum(transactionAmount)[1],
+            max = fivenum(transactionAmount)[5]) 
+```
+
+```{r}
+## Part 5. Explore the transactionAmount after removing "ADDRESS_VERIFICATION"
+Question2 <- subset(CT_data, transactionType != "ADDRESS_VERIFICATION")
+
+## Descriptive Statistics and Plot for transactionAmount
+numer_var <- c( "transactionAmount")
+numer_desc <- data.frame(matrix(NA, ncol = 6))
+names(numer_desc) <- c("Mean", "Standard Deviation",
+                       "Median", "Minimum", "Maximum", "Count of Null")
+i <- 1
+for (nvar in numer_var) {
+  
+  mysd <- sd(eval(parse(text = paste("Question2","$",nvar, sep = ""))), na.rm = T)
+  mysummary <- summary(eval(parse(text = paste("Question2","$",nvar, sep = ""))))
+  myNA <- length(which(eval(parse(text = paste("Question2","$", nvar, sep = ""))) == "") == T)
+  #myNA <- length(which(is.na(eval(parse(text = paste("Question2","$",nvar, sep = ""))))))
+  numer_desc[i, c(1, 3:5)] <- mysummary[c(4,3,1,6)]
+  numer_desc[i, 2] <- mysd
+  numer_desc[i, 6] <- myNA
+  i <- i+1
+  myhist <- ggplot(Question2, aes(x = eval(parse(text = paste("Question2","$",nvar, sep = ""))))) +  
+    geom_histogram(bins = 30) + 
+    mytheme +
+    labs(y = "COUNTS", x = parse(text = nvar)) +
+    ggtitle(paste("", sep=" "))
+  print(myhist)
+}
+
+stargazer(numer_desc, type = "text", summary = F, 
+          rownames = F, align = T, notes.align = "l",
+          title="Descriptive Statistics")
+
+
+skewness(Question2$transactionAmount)
+kurtosis(Question2$transactionAmount)
+```
+
+
+```{r}
+##======================================================##
+## Question 3
+## Identify reversed and multi-swipe transactions
+
+## Transfer data.frame to data.table 
+DT <- data.table(CT_data, key = "accountNumber,customerId,creditLimit,transactionAmount,merchantName,merchantCountryCode,merchantCategoryCode,currentExpDate,accountOpenDate,dateOfLastAddressChange,cardCVV,cardLast4Digits,transactionyearmonth,transactionyearmonthday")
+
+```
+
+
+```{r}
+## Identify the duplicate cases
+CT_data <- CT_data[order(CT_data$accountNumber),]
+#CT_data[duplicated(CT_data[, -c(4:5, 19, 21)]) | duplicated(CT_data[, -c(4:5, 19, 21)], fromLast = TRUE),]
+```
+
+```{r}
+## Identify the duplicate cases
+Dup_data <- DT[DT[unique(DT[duplicated(DT[, -c(4:5, 19, 21)])]), which = T],]
+Dup_data  <- Dup_data [!duplicated(Dup_data),] ##(remove exact same record, the transaction time and avaiable money were same as well)
+## Remove the "ADDRESS_VERIFICATION"
+Dup_data <- subset(Dup_data, transactionType != "ADDRESS_VERIFICATION")
+```
+
+
+```{r}
+## check the number of transactions for each transaction Type
+length(which((Dup_data$transactionType) == "PURCHASE"))     
+length(which((Dup_data$transactionType) == "REVERSAL")) 
+length(which((Dup_data$transactionType) == ""))
+
+## Compute the availableMoney differences (group by 12 features)
+Dup_data <- Dup_data %>%
+  group_by(accountNumber,customerId,
+           creditLimit,transactionAmount,
+           merchantName,merchantCountryCode,
+           merchantCategoryCode,
+           currentExpDate,accountOpenDate,
+           dateOfLastAddressChange,
+           cardCVV,cardLast4Digits) %>%
+  mutate(AvaDifference = availableMoney-lag(availableMoney, default = first(availableMoney)))
+```
+
+```{r}
+## Consider the first transaction to be "normal" and exclude it
+Dup_data1 <- subset(Dup_data, AvaDifference!= 0)
+## Recode the AvaDifference to present increase or decrease
+Dup_data1$inavMoney <- ifelse(Dup_data1$AvaDifference > 0, 1, 0)
+Dup_data1$deavMoney <- ifelse(Dup_data1$AvaDifference < 0, 1, 0)
+```
+
+```{r}
+## Compute the total number of actions and total amount for Reversed Transaction and Multi-swipe Transactions
+Dup_data1 %>%
+  group_by(transactionType) %>%
+  summarize(groupsize = n(), 
+            total = sum(transactionAmount)) 
+```
+
+
+
+```{r}
+## Test my assumption (avaiableMoney change) about the two types of transaction
+DDup_Reversed <- subset(Dup_data1, transactionType == "REVERSAL")
+length(which(DDup_Reversed$isFraud == "TRUE"))
+length(which(DDup_Reversed$isFraud == "FALSE"))
+sum(DDup_Reversed$inavMoney)
+sum(DDup_Reversed$deavMoney)
+
+## Test my assumption (and Fraud status) about the two types of transaction
+DDup_Multiswipe <-subset(Dup_data1, transactionType == "PURCHASE")
+length(which(DDup_Multiswipe$isFraud == "TRUE"))
+length(which(DDup_Multiswipe$isFraud == "FALSE"))
+sum(DDup_Multiswipe$inavMoney)
+sum(DDup_Multiswipe$deavMoney)
+```
+
+```{r}
+##======================================================##
+## Question 4
+## Predict Fraud
+
+## Split training and test sets
+## 50% of the sample size as training set
+smp_size <- floor(0.5 * nrow(CT_data))
+
+## set the seed to make the partition reproducible
+set.seed(123)
+
+train_ind <- sample(seq_len(nrow(CT_data)), size = smp_size)
+train <- CT_data[train_ind, ]
+test <- CT_data[-train_ind, ]
+```
+
+```{r}
+## Define the weights
+frex(train$isFraud)
+train$W <- ifelse(train$isFraud == TRUE, 0.98, 0.02)
+```
+
+```{r}
+## Train weighted logistic regression (imbalanced isFraud)
+model <- glm(isFraud ~  creditLimit + currentBalance + availableMoney + transactionAmount + acqCountry + merchantCountryCode + posEntryMode + posConditionCode + merchantCategoryCode + transactionType + cardPresent + expirationDateKeyInMatch, 
+             data = train, weights = W, family = binomial)
+
+summary(model)
+```
+
+```{r}
+## Predict Fraud status on test set use trained logistic regression model 
+pre <- predict(model, newdata = test, type = "response")
+pre <- data.frame(pre)
+
+## Set p = 0.5 as cutoff point
+pre <- ifelse(pre < 0.5, FALSE, TRUE)
+pre <- as.factor(pre)
+
+## Extract the true Fraud status from test set
+true <- test$isFraud
+true <- as.factor(true)
+## Evaluate the model
+confusionMatrix(pre, true)
+```
+
+
+```{r}
+pred <- prediction(data.frame(predict(model, newdata = test, type = "response")), test$isFraud)
+perf <- performance(pred,"tpr","fpr")
+plot(perf,colorize = TRUE)
+```
+
+
+
+```{r}
+## Change the weights
+frex(train$isFraud)
+train$W <- ifelse(train$isFraud == TRUE, 0.985, 0.015)
+```
+
+
+```{r}
+## Train weighted logistic regression (imbalanced isFraud)
+model <- glm(isFraud ~  creditLimit + currentBalance + availableMoney + transactionAmount + acqCountry + merchantCountryCode + 
+               posEntryMode + posConditionCode + merchantCategoryCode + transactionType + cardPresent + expirationDateKeyInMatch, 
+             data = train, weights = W, family = binomial)
+```
+
+```{r}
+## Predict Fraud status on test set use trained logistic regression model 
+pre <- predict(model, newdata = test, type = "response")
+pre <- data.frame(pre)
+
+## Set p = 0.4 as cutoff point
+pre <- ifelse(pre < 0.4, FALSE, TRUE)
+pre <- as.factor(pre)
+
+## Extract the true Fraud status from test set
+true <- test$isFraud
+true <- as.factor(true)
+
+## Evaluate the model
+confusionMatrix(pre, true)
+```
