@@ -1,8 +1,7 @@
 #################################################################################
 ##  Deep_Learning_Project_Multi-class_Image_Classification_with_CNN
 #################################################################################
-## Team Members:
-Hailey KUANG
+## By Hailey KUANG
 
 ##=============================================##
 ## The following illustrates how to run my code 

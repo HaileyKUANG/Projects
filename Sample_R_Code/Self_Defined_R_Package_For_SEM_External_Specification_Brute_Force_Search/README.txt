@@ -1,6 +1,7 @@
-Part1. About HTML file
-GitHub can't show HTML files that are this big right now, please see it as:
-https://htmlpreview.github.io/?https://github.com/HaileyKUANG/Projects/blob/main/Sample_R_Code/R_Data_Analysis_Fraud_Transaction_with_Regression/R_Data_Analysis_Fraud_Transaction_with_Regression.html
+Part1. About HTML and PowerPoint file
+GitHub can't show HTML and PowerPoint files that are this big right now, please see it as:
+https://htmlpreview.github.io/?
+
 
 
 Part2. About rmarkdown
@@ -14,7 +15,3 @@ Please replace the path with /.../
 
 You can also find the R Markdown Quick Tour at:
 https://rmarkdown.rstudio.com/authoring_quick_tour.html
-
-
-
-

@@ -1,6 +1,6 @@
 ---
-title: "Data Science Challenge (finished within 180 mins)"
-author: "HK_C1879281"
+title: "R_Data_Analysis_Fraud_Transaction_with_Regression"
+author: "Hailey (Finished within 180 mins)"
 date: "3/24/2021"
 output: html_document
 ---
