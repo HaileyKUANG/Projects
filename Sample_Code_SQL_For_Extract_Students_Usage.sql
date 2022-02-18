@@ -1,16 +1,13 @@
-
+/* ================================================================== */ 
 ## Tasks
-```
-## 1. Summarize the unknown tables 
-## 2. Clarify questions
-```
+## Summarize the unknown tables 
+## Clarify questions
 
 ## Note
-```
 ## The 2021 Spring experiment began on Jan 11, 2021, and ended on June 4, 2021
-## Began on Jan 11, 2021, because the problem of having the incorrect type of recommendation was fixed on Jan 11, 2021, although the first batch of participants enrolled in Nov.2020.
+## (The first batch of participants enrolled in Nov.2020, however, the problem of having incorrect type of recommendation was fixed on Jan 11, 2021)
 ## N = 55 (teachers) is the final sample sizeresults_2021_cyu
-```
+/* ================================================================== */ 
 
 /* ================================================================== */
 /*  Query 0 */
@@ -27,10 +24,8 @@ DROP TABLE IF EXISTS vll.results_2021_cyu;
 /* ================================================================== */
 /*  Query 1 */
 /* ================================================================== */ 
-```
 ## Create a table named "vll.results_2021_cyu"
 ## There are 26 variables/attributes in this table
-```
 
 CREATE TABLE vll.results_2021_cyu (
   useraccount_id int(11) NOT NULL,
@@ -63,10 +58,12 @@ CREATE TABLE vll.results_2021_cyu (
   UNIQUE KEY results_2021_cyu_assessment_id_question_id_idx (assessment_id, question_id) USING BTREE) 
   ENGINE = InnoDB;
 
+
+
+
 /* ================================================================== */
 /*  Query 2 */
 /* ================================================================== */ 
-```
 ## Insert values to the following 9 variables/attributes in the table "vll.results_2021_cyu":
 ## 1. useraccount_id 
 ## 2. assessment_id 
@@ -79,7 +76,6 @@ CREATE TABLE vll.results_2021_cyu (
 ## 9. result 
 
 ## 404,268 records has been inserted
-```
 
 INSERT INTO vll.results_2021_cyu
 SELECT
@@ -94,23 +90,24 @@ SELECT
     tyaq.user_given_answer_text, 
     IF(ISNULL(tyaq.user_given_answer_id) AND ISNULL(tyaq.user_given_answer_text), 99,
 		IF(ISNULL(tyaq.user_given_answer_text),
-			IF(tyaq.user_given_answer_id = tyq.correct_answer_id, 'correct', 'incorrect'), 'undefined')) 'result',
-    NULL, 	
-    NULL, 	
-    NULL, 	
-    NULL, 	
-    NULL, 
-    NULL, 
-    NULL, 
-    NULL, 	
-    NULL, 	
-    NULL, 
-    NULL, 	
-    NULL,	
-    NULL, 	
-    NULL, 	
-    NULL,	
-    NULL 	
+			IF(tyaq.user_given_answer_id = tyq.correct_answer_id, 'correct', 'incorrect'), 'undefined')) 'result', 
+            
+	NULL, 	## display_name_section
+    NULL, 	## display_name_topic
+    NULL, 	## processed
+    NULL, 	## has_watched_solution_video
+    NULL, 	## time_attempted
+    NULL, 	## time_finished
+    NULL, 	## recorded
+    NULL, 	## estimated
+    NULL, 	## engagement
+    NULL, 	## fraction
+    NULL, 	## ability
+    NULL,	## recommended_id
+    NULL, 	## recommended_code
+    NULL, 	## recommended_tutor
+    NULL,	## recommended_location
+    NULL 	## followed
     
 FROM UserClusters std
 INNER JOIN TestYourselfAssessments tya
@@ -118,6 +115,8 @@ INNER JOIN TestYourselfAssessments tya
 INNER JOIN TestYourselfAssessmentQuestions tyaq
 	ON tya.id = tyaq.assessment_id
 LEFT JOIN TestYourselfSatQuestions tysq
+## should be left join this table
+## without and with this table
 	ON tyaq.question_id = tysq.question_id
 	AND tya.section_folder_id = tysq.video_id
 	AND tya.subject_id = tysq.subject_id
@@ -135,12 +134,11 @@ WHERE(DATE(CONVERT_TZ(tya.ts_created, 'GMT', 'EST')) BETWEEN @START_DATE AND @EN
 /* ================================================================== */
 /*  Query 3*/
 /* ================================================================== */ 
-```
 ## Insert values to the following three variables/attributes in the table "vll.results_2021_cyu": 
 ## section_id
 ## display_name_section 
 ## display_name_topic
-```
+
 UPDATE
 	vll.results_2021_cyu Y5table
 INNER JOIN FolderTree ft
@@ -157,11 +155,9 @@ SET
 /* ================================================================== */
 /*  Query 4*/
 /* ================================================================== */ 
-```
 ## Insert values to the following variable/attribute: 
 ## time_attempted
 ## in the table "vll.results_2021_cyu"
-```
 
 UPDATE
 	vll.results_2021_cyu Y5table
@@ -173,17 +169,16 @@ SET
 
 
 
+
 /* ================================================================== */
 /*  Query 5*/
 /* ================================================================== */ 
 
-```
 ## Insert values to the following variable/attribute in the table "vll.results_2021_cyu": 
 ## time_finished
 
 ## Meanwhile, only keep the finished sat
 ## 386,265 finished sat questions
-```
 
 UPDATE vll.results_2021_cyu Y5table
 INNER JOIN TestYourselfAssessments tya
@@ -193,14 +188,13 @@ SET
 WHERE
 	Y5table.is_finished = 1;
 
+
 /* ================================================================== */
 /*  Query 6-1*/
 /* ================================================================== */ 
-```
 ## Stamping the first attempt
 ## Added a new column named 'is_first_attempt' after 'time_finished'
-## ! This can not be achieved without creating a table
-```
+
 ALTER TABLE vll.results_2021_cyu 
 ADD COLUMN is_first_attempt tinyint(1) NULL 
 COMMENT '' 
@@ -208,15 +202,12 @@ AFTER time_finished;
 
 
 
-
 /* ================================================================== */
 /*  Query 6-2*/
 /* ================================================================== */ 
-```
 ## Initial the following variable/attribute: 
 ## is_first_attempt
 ## in the table "vll.results_2021_cyu"
-```
 
 UPDATE vll.results_2021_cyu
 SET is_first_attempt = 0;
@@ -226,10 +217,8 @@ SET is_first_attempt = 0;
 /* ================================================================== */
 /*  Query 6-3*/
 /* ================================================================== */ 
-```
 ## Insert values to the following variable/attribute in the table "vll.results_2021_cyu": 
 ## is_first_attempt
-```
 
 
 UPDATE 
@@ -260,20 +249,18 @@ SET
 /* ================================================================== */
 /* Evaluate the table "is_first_attempt"*/
 /* ================================================================== */ 
-```
 ## At question level
 ## 246,036 first attempt
 ## 158,232 non-first attempt
-```
+
 SELECT count(is_first_attempt) 
 FROM vll.results_2021_cyu
 GROUP BY is_first_attempt;
 
-```
 ## At assessment level
 ## 82,012 first attempt
 ## 52,744 non-first attempt
-```
+
 SELECT count(needed.is_first_attempt) 
 FROM 	(SELECT useraccount_id, section_id, topic_id, test_type, assessment_id, is_first_attempt
 		FROM vll.results_2021_cyu
@@ -286,11 +273,9 @@ GROUP BY needed.is_first_attempt;
 /* ================================================================== */
 /*  Specific Problem between is_finished and posttest*/
 /* ================================================================== */ 
-```
 ## Table TestYourselfAssessments 
 ## 11627 data entries
 ## 5 different question
-```
 
 SELECT * 
 FROM TestYourselfAssessments TYS
@@ -298,13 +283,11 @@ WHERE TYS.useraccount_id IN (SELECT distinct useraccount_id from UserClusters)
 AND TYS.is_finished = 1
 AND TYS.test_type = 'pretest';
 
-```
 ## ? 0
 ## None of the posttest was finished
 ## ! did not record is_finish
 ## begin as posttest
 ## after as regular tys
-```
 SELECT * 
 FROM TestYourselfAssessments TYS
 WHERE TYS.useraccount_id IN (SELECT distinct useraccount_id from UserClusters)
@@ -316,13 +299,13 @@ FROM TestYourselfAssessments TYS
 WHERE TYS.is_finished = 1
 AND TYS.test_type = 'posttest';
 
-`## Table vll_estimates  `
+## Table vll_estimates  
 SELECT * 
 FROM vll_estimates 
 WHERE vll_estimates.type = 'pretest' OR vll_estimates.type  = 'posttest'
 AND ts_created between @START_DATE and @END_DATE;
 
-`## 13,810 posttest `
+## 13,810 posttest 
 SELECT * 
 FROM vll_estimates 
 WHERE vll_estimates.type  = 'posttest'
@@ -331,10 +314,8 @@ AND ts_created between @START_DATE and @END_DATE;
 /* ================================================================== */
 /*  Query 7*/
 /* ================================================================== */ 
-```
 ## Insert values to the following variable/attribute in the table "vll.results_2021_cyu": 
 ## ability from estimates
-```
 UPDATE
 	vll.results_2021_cyu Y5table
 INNER JOIN UserClusters clusters
@@ -375,14 +356,12 @@ WHERE
 /* ================================================================== */
 /*  Query 9 -1 */
 /* ================================================================== */ 
-```
 ## Insert values to the following 5 variable/attribute in the table "vll.results_2021_cyu": 
 ## recommended_id 
 ## recommended_code
 ## recommended_tutor 
 ## recommended_location 
 ## followed 
-```
 UPDATE
 	vll.results_2021_cyu Y5table
 INNER JOIN RecomendationVideosTracking rvt
@@ -449,7 +428,7 @@ SET
 /* ================================================================== */
 /*  Query 28*/
 /* ================================================================== */ 
-`-- Setting first attempt flag`
+-- Setting first attempt flag
 UPDATE
 	vll.results_2021_cyu 
 INNER JOIN (
@@ -479,12 +458,10 @@ SET vll.results_2021_cyu.is_first_attempt = IF(attempts.previously_finished, 0, 
 /* ================================================================== */
 /*  Query 29*/
 /* ================================================================== */ 
-```
 ## Insert values to the following 5 variable/attribute in the table "vll.results_2021_cyu": 
 ## has_watched_solution_video
 ## A table is missing
 ## ? vll_results_before_covid_cyu_prepared
-```
 
 UPDATE
 	vll.results_2021_cyu Y5table
@@ -551,10 +528,8 @@ SET
 /* ================================================================== */
 /*  Query 32*/
 /* ================================================================== */ 
-```
 ## ? vll_results_before_covid_cyu_prepared
 -- ABILITY FROM previous CALCULATION
-```
 
 UPDATE
 	vll.results_2021_cyu Y5table
