@@ -1,4 +1,4 @@
-Part1. About Rtest Package
+Part1. About self-defined R Package: Rtest
 If you do not want to install "Rtest.zip" as a package, please run the four functions in the folder "Rtest_Functions" before running the TIMSS example in rmarkdown.
 
 Part2. About HTML and PowerPoint file
