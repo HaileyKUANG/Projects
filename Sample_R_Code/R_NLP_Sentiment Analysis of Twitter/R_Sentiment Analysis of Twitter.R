@@ -20,7 +20,6 @@ for (BAO in Packages) {
 
 ## set paths
 setwd("/Users/.../R_NLP_Sentiment Analysis of Twitter")
-setwd("F:/GitHub/Projects/Sample_R_Code/R_NLP_Sentiment Analysis of Twitter")
 
 ## ============================ ##
 ## 1. Capture Tweets
