@@ -2,6 +2,9 @@
 ##                Sentiment Analysis of Twitter              ##
 ##===========================================================##
 
+## set paths
+setwd("/Users/.../R_NLP_Sentiment Analysis of Twitter")
+
 ## Install needed packages
 Packages <- c("twitteR", "RCurl", "bitops", "tm", "slam", 
               "wordcloud", "NLP", "lavaan", "RCurl", "syuzhet",
@@ -18,8 +21,7 @@ for (BAO in Packages) {
   }
 }
 
-## set paths
-setwd("/Users/.../R_NLP_Sentiment Analysis of Twitter")
+
 
 ## ============================ ##
 ## 1. Capture Tweets
