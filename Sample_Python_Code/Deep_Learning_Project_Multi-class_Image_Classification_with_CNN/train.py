@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File:   train.py
-Author: Huan KUANG
+Author: Hailey
 Date: Nov.30, 2020  
 Desc: Train the CNN model  
 	

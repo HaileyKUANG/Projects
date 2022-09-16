@@ -1,6 +1,6 @@
 ---
 title: "R_Data_Analysis_Fraud_Transaction_with_Regression"
-author: "Hailey (Finished within 180 mins)"
+author: "Hailey"
 date: "3/24/2021"
 output: html_document
 ---
@@ -99,9 +99,7 @@ frex <- function(x){
 ## For each record, there are 29 fields
 
 ## ... refer to the local path to the folder with "transactions.txt" file 
-
-#CT_data_OR <- stream_in(file("C:/Users/chena/Desktop/20210101 Maguire/transactions.txt"))
-CT_data_OR <- stream_in(file("F:/3. Application/External_Application/Intern/Data/2021 Capital One/HK_C1879281_Data Science Challenge_Card Transactions/Card Transactions/transactions.txt"))
+CT_data_OR <- stream_in(file("transactions.txt"))
 CT_data <- CT_data_OR
 
 ```

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File:   classifiers_regressors.py
-Author: Hailey KUANG
+Author: Hailey
 Date: Oct.01, 2021
 Desc:
         Part 1. Binary Classification Task (Line 62-135)
@@ -40,17 +40,17 @@ pd.set_option('display.max_columns', 10)
 """ =========================  Read Data ================================= """
 
 ## Data for Binary Classification Task
-Data_final = np.loadtxt("C:/Users/chena/Desktop/CIS 6930 Deep Learning Comp Graphics/Projects/P1/datasets-part1/tictac_final.txt")
+Data_final = np.loadtxt("tictac_final.txt")
 X_final = Data_final[:, :9]
 Y_final = Data_final[:, 9:]
 
 ## Data for Multi-class Classification Task
-Data_single = np.loadtxt("C:/Users/chena/Desktop/CIS 6930 Deep Learning Comp Graphics/Projects/P1/datasets-part1/tictac_single.txt")
+Data_single = np.loadtxt("tictac_single.txt")
 X_single = Data_single[:, :9]
 Y_single = Data_single[:, 9:]
 
 ## Data for Multi-label regressors
-Data_multi = np.loadtxt("C:/Users/chena/Desktop/CIS 6930 Deep Learning Comp Graphics/Projects/P1/datasets-part1/tictac_multi.txt")
+Data_multi = np.loadtxt("tictac_multi.txt")
 X_multi = Data_multi[:, :9]
 Y_multi = Data_multi[:, 9:]
 

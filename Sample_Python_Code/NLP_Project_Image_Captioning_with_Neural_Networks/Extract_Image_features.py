@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """
-File:   Project3_Extract_Image_features.py
-Author: Hailey KUANG
+File:   Extract_Image_features.py
+Author: Hailey
 Date: Nov.05, 2021
 Desc:   1. This file extract image feature via VGG16
         2. The predicted features will be saved

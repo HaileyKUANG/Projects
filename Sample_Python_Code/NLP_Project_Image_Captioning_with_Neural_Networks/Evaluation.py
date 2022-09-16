@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """
-File:   Project3_Evaluation.py
-Author: Hailey KUANG
+File:   Evaluation.py
+Author: Hailey
 Date: Nov.06, 2021
 Desc:   1. This file evaluate the performance of the trained LSTM model
         2. The predicted/generated captions will be provided for an given image by running this script

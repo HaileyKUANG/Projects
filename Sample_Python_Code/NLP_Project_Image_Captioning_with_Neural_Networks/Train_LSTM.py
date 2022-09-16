@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """
-File:   Project3_Train_LSTM.py
-Author: Hailey KUANG
+File:   Train_LSTM.py
+Author: Hailey
 Date: Nov.05, 2021
 Desc:   1. This file contains the information about training the LSTM model
         2. A trained model will be saved

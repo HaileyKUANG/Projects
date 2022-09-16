@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 File:   play_tictactoe.py
-Author: Hailey KUANG
+Author: Hailey
 Date:   Oct.04, 2021
 Desc:   TicTacToe for HUMAN vs COMPUTER (Trained MLP Model)
         Need to load "Trained_MLP_mmodel.sav"
